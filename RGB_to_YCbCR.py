@@ -1,95 +1,40 @@
 import cv2
-import numpy as np
-from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import os
 
+# Function to convert the image from RGB to YCbCr
 def rgb_to_ycbcr(image):
-    # Convert the image from RGB to YCbCr
     ycbcr_image = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
     return ycbcr_image
 
-# Load an example image (replace 'example.jpg' with your image path)
-image_path = 'Example.png'
-rgb_image = cv2.imread(image_path)
+# Load dataset folder and get the image names
+dataset_folder = 'dataset/images'
+image_names = os.listdir(dataset_folder)
 
-# Convert the image from BGR (OpenCV default) to RGB
-rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
+# Create Results directory if it doesn't exist
+results_dir = 'Results'
+os.makedirs(results_dir, exist_ok=True)
 
-r, g, b = cv2.split(rgb_image)
+# Loop through the images in the dataset folder
+for image_name in image_names:  # Process first 5 images for testing
+    # Load the image
+    image_path = os.path.join(dataset_folder, image_name)
+    rgb_image = cv2.imread(image_path)
+    rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)  # Convert from BGR to RGB
 
-r_size = np.size(r)
-g_size = np.size(g)
-b_size = np.size(b)
+    # Convert the image from RGB to YCbCr
+    ycbcr_image = rgb_to_ycbcr(rgb_image)
 
-print(f"size of R component {r_size}")
-print(f"size of G component {g_size}")
-print(f"size of B component {b_size}")
+    #split the YCbCr image into Y, Cb, and Cr channels
+    Y, Cb, Cr = cv2.split(ycbcr_image)
 
-# Convert RGB image to YCbCr
-ycbcr_image = rgb_to_ycbcr(rgb_image)
+    # Save the YCbCr image
+    ycbcr_image_path = os.path.join(results_dir, 'YCbCr_' + image_name)
+    cv2.imwrite(ycbcr_image_path, Y)
 
-# Split the channels
-Y, Cb, Cr = cv2.split(ycbcr_image)
+    # show progress to the user as percentage
+    print('YCbCr image saved for', image_name)
 
-Y_size = np.size(Y)
-Cb_size = np.size(Cb)
-Cr_size = np.size(Cr)
 
-print(f"size of Y component {Y_size}")
-print(f"size of Cb component {Cb_size}")
-print(f"size of Cr component {Cr_size}")
+print('YCbCr images saved in the Results directory')
+    
 
-# Display the images
-plt.figure(figsize=(12, 8))
-plt.subplot(1, 4, 1)
-plt.imshow(rgb_image)
-plt.title('Original RGB Image')
-plt.axis('off')
-
-plt.subplot(1, 4, 2)
-plt.imshow(Y, cmap='gray')
-plt.title('Y Channel')
-plt.axis('off')
-
-plt.subplot(1, 4, 3)
-plt.imshow(Cb, cmap='gray')
-plt.title('Cb Channel')
-plt.axis('off')
-
-plt.subplot(1, 4, 4)
-plt.imshow(Cr, cmap='gray')
-plt.title('Cr Channel')
-plt.axis('off')
-
-plt.show()
-
-# Plot RGB datapoints in 3D
-fig = plt.figure(figsize=(14, 6))
-
-ax = fig.add_subplot(121, projection='3d')
-r, g, b = rgb_image[..., 0].flatten(), rgb_image[..., 1].flatten(), rgb_image[..., 2].flatten()
-ax.scatter(r, g, b, c=rgb_image.reshape(-1, 3)/255.0, marker='o')
-ax.set_xlabel('Red')
-ax.set_ylabel('Green')
-ax.set_zlabel('Blue')
-ax.set_title('RGB Data Points')
-
-# Plot YCbCr datapoints in 3D
-ax = fig.add_subplot(122, projection='3d')
-y, cb, cr = Y.flatten(), Cb.flatten(), Cr.flatten()
-ax.scatter(y, cb, cr, c=rgb_image.reshape(-1, 3)/255.0, marker='o')
-ax.set_xlabel('Y')
-ax.set_ylabel('Cb')
-ax.set_zlabel('Cr')
-ax.set_title('YCbCr Data Points')
-
-plt.show()
-
-# Plot Y component in 1D
-plt.figure(figsize=(10, 4))
-plt.plot(Y.flatten(), color='gray', lw=0.5)
-plt.title('Y Component')
-plt.xlabel('Pixel Index')
-plt.ylabel('Y Value')
-plt.grid(True)
-plt.show()
