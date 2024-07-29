@@ -1,0 +1,12 @@
+train: ../dataset/train/images
+val: ../dataset/valid/images
+test: ../dataset/test/images
+nc: 1
+names: ['Tello']
+
+roboflow:
+  workspace: texas-tech-university-ftyvl
+  project: tellov4
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/texas-tech-university-ftyvl/tellov4/dataset/3
